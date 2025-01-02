@@ -1,0 +1,48 @@
+-- Coloque este script em um LocalScript dentro do StarterPlayerScripts
+
+-- ID do item que será comprado
+local itemId = 17327520130
+
+-- Referência aos serviços
+local MarketplaceService = game:GetService("MarketplaceService")
+local player = game.Players.LocalPlayer
+
+-- Variável para acompanhar se a compra está em andamento
+local purchaseInProgress = false
+
+-- Função para abrir a página de compra
+local function promptPurchase()
+	if not purchaseInProgress then
+		purchaseInProgress = true
+		MarketplaceService:PromptPurchase(player, itemId)
+	end
+end
+
+-- Função para cancelar a compra automaticamente
+local function cancelPurchase()
+	if purchaseInProgress then
+		purchaseInProgress = false
+		-- Simula o fechamento automático (não há uma API direta para fechar a janela)
+		print("Compra cancelada automaticamente.")
+		-- O cancelamento da interface de compra precisa ser feito manualmente pelo usuário.
+	end
+end
+
+-- Detecta quando a tecla 'P' é pressionada
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, isProcessed)
+	if input.KeyCode == Enum.KeyCode.P and not isProcessed then
+		promptPurchase()
+		-- Cancela automaticamente após 1 segundo (simulado)
+		task.wait(1)
+		cancelPurchase()
+	end
+end)
+
+-- Reseta o estado de compra quando a transação é finalizada
+MarketplaceService.PromptPurchaseFinished:Connect(function(playerWhoFinished, assetId, isPurchased)
+	if playerWhoFinished == player and assetId == itemId then
+		purchaseInProgress = false
+		print("Transação concluída ou cancelada pelo usuário.")
+	end
+end)
